@@ -1,0 +1,16 @@
+sequenceDiagram
+    participant FE as FE Layer
+    participant BE1 as BE1 Layer
+    participant Redis as Redis Layer
+    participant BE2 as BE2 Layer
+
+    FE ->> BE1: POST /start
+    BE1 ->> Redis: HSET job state
+    BE1 ->> Redis: LPUSH job_queue
+    Redis ->> BE2: BRPOP job_queue
+    BE2 ->> Redis: HSET progress
+    Redis ->> BE1: HGETALL job
+    BE1 -->> FE: SSE progress
+    BE2 ->> Redis: HSET finished
+    Redis ->> BE1: HGETALL job
+    BE1 -->> FE: SSE finished

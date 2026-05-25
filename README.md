@@ -8,6 +8,11 @@ The system supports parallel job execution, automatic reconnection, and graceful
 
 ![Architecture](docs/architecture.png)
 
+Message Sequence Chart
+
+![Flow](docs/msc_flow.png)
+
+
 ---
 
 ## Alternatives
