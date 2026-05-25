@@ -19,7 +19,6 @@ async def worker_loop():
         job = await r.brpop("job_queue")
         job_id = job[1]
 
-        # 🔥 IMPORTANT: run job in background task
         asyncio.create_task(run_job(job_id))
 
 

@@ -9,10 +9,9 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-# CORS FIX
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # vagy: ["http://localhost:5173"]
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -52,12 +51,10 @@ async def sse_stream(job_id: str):
             yield f"data: {json.dumps(state)}\n\n"
             last_state = state
 
-        # 🔥 If job is done → send close event and exit generator
         if state.get("status") in ("finished", "error"):
             yield "event: close\ndata: stream_end\n\n"
-            return   # <--- IMPORTANT
+            return
 
-        # heartbeat
         yield "data: heartbeat\n\n"
         await asyncio.sleep(1)
 

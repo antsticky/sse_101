@@ -25,7 +25,6 @@ export default function JobStatus({ jobId }) {
       setProgress(Number(data.progress));
       setMessage(data.message);
 
-      // 🔥 IMPORTANT: close SSE when job is done
       if (data.status === "finished" || data.status === "error") {
         evtSource.close();
         setConnected(false);
