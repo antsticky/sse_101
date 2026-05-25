@@ -1,47 +1,21 @@
-import { useEffect, useState } from "react";
-
-async function startJob() {
-  const res = await fetch("/start", { method: "POST" });
-  const data = await res.json();
-  return data.job_id;
-}
+import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import { JobProvider } from "./JobStore";
+import JobList from "./JobList";
+import JobDetail from "./JobDetail";
 
 export default function App() {
-  const [messages, setMessages] = useState([]);
-
-  useEffect(() => {
-    const run = async () => {
-      const jobId = await startJob();
-
-      const evt = new EventSource(`/events?job_id=${jobId}`);
-
-      evt.onmessage = (e) => {
-        const [status, progress, message] = e.data.split("|");
-        setMessages((prev) => [...prev, { status, progress, message }]);
-
-        if (status === "finished" || status === "error") {
-          evt.close();
-        }
-      };
-
-      evt.onerror = () => {
-        console.log("SSE connection lost");
-      };
-    };
-
-    run();
-  }, []);
-
   return (
-    <div>
-      <h1>SSE Demo</h1>
-      <ul>
-        {messages.map((m, i) => (
-          <li key={i}>
-            {m.status} – {m.progress}% – {m.message}
-          </li>
-        ))}
-      </ul>
-    </div>
+    <JobProvider>
+      <BrowserRouter>
+        <nav style={{ padding: 10 }}>
+          <Link to="/">Home</Link>
+        </nav>
+
+        <Routes>
+          <Route path="/" element={<JobList />} />
+          <Route path="/job/:jobId" element={<JobDetail />} />
+        </Routes>
+      </BrowserRouter>
+    </JobProvider>
   );
 }

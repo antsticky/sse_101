@@ -35,7 +35,7 @@ async def long_job(job_id: str) -> None:
                 message=message,
                 updated_at=time.time(),
             )
-            await asyncio.sleep(1.5)
+            await asyncio.sleep(5)
 
     except Exception as e:
         job_states[job_id] = JobState(
