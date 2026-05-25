@@ -132,3 +132,78 @@ The system supports parallel job execution, automatic reconnection, and graceful
 - BE1 failures do not affect job execution.
 - BE2 failures do not break SSE streams.
 - Redis acts as the single source of truth for all job state.
+
+## Test / Simulation
+
+This section describes how to simulate real‑world outage scenarios using Docker Compose.  
+The goal is to verify that the system behaves correctly when either BE1 (gateway) or BE2 (worker) becomes unavailable.
+
+---
+
+## Simulating BE1 Outage (Gateway Failure)
+
+This tests how the system reacts when the SSE endpoint disappears.
+
+### Steps
+1. Start multiple jobs from the frontend.
+2. Kill BE1 immediately:
+
+```bash
+docker compose kill be1
+```
+
+3. Observe the frontend:
+    - All SSE connections drop instantly.
+    - The UI shows the connection as “disconnected”.
+    - Job progress stops updating (because BE1 is the stream provider).
+    - Jobs themselves continue running in BE2.
+
+4. Restart BE1:
+
+```bash
+docker compose up -d be1
+```
+
+5. Expected behavior:
+- The frontend automatically reconnects via SSE.
+- Job progress resumes streaming from Redis.
+- No job state is lost because BE1 is stateless.
+
+---
+
+## Simulating BE2 Outage (Worker Failure)
+
+This tests how the system behaves when workers crash or restart.
+
+### Steps
+1. Start multiple jobs from the frontend.
+2. Kill BE2:
+```bash
+docker compose kill be2
+```
+
+3. Observe the frontend:
+    - Job progress freezes.
+    - SSE connection remains active (BE1 is still running).
+    - No reconnect happens because the stream endpoint is unaffected.
+
+4. Restart BE2:
+
+```bash
+docker compose up -d be2
+```
+
+5. Expected behavior:
+- BE2 resumes processing queued jobs.
+- Progress updates continue from where they stopped.
+- The frontend receives updates without reconnecting.
+
+---
+
+## Notes on Behavior
+
+- **BE1 outage** affects the SSE stream → frontend reconnects automatically.
+- **BE2 outage** affects job execution → frontend does not reconnect, but progress pauses.
+- **Redis remains the single source of truth**, so any component can restart without losing job state.
+
+This simulation approach ensures the system is resilient to real‑world failures such as container crashes, network interruptions, or rolling deployments.
