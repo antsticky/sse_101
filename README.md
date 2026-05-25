@@ -15,6 +15,15 @@ Message Sequence Chart
 
 ---
 
+## Demo
+
+[![Watch the video](thumbnail.jpg)](docs/SSE_demo.mov)
+
+
+---
+
+
+
 ## Alternatives
 
 ### Async Polling
