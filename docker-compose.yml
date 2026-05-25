@@ -1,23 +1,33 @@
 version: "3.9"
 
 services:
-  backend:
-    build: ./backend
+  be1:
+    build: ./be1
     ports:
       - "8000:8000"
-    volumes:
-      - ./backend:/app
     environment:
+      - REDIS_HOST=redis
       - PYTHONUNBUFFERED=1
+    depends_on:
+      - redis
+
+  be2:
+    build: ./be2
+    environment:
+      - REDIS_HOST=redis
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
 
   frontend:
     build: ./frontend
     ports:
       - "5173:5173"
-    volumes:
-      - ./frontend/src:/app/src
-      - ./frontend/index.html:/app/index.html
-      - ./frontend/vite.config.js:/app/vite.config.js
     environment:
       - CHOKIDAR_USEPOLLING=true
 

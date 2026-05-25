@@ -1,21 +1,24 @@
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
-import { JobProvider } from "./JobStore";
-import JobList from "./JobList";
-import JobDetail from "./JobDetail";
+import { useState } from "react";
+import { startJob } from "./api";
+import JobStatus from "./JobStatus";
 
 export default function App() {
-  return (
-    <JobProvider>
-      <BrowserRouter>
-        <nav style={{ padding: 10 }}>
-          <Link to="/">Home</Link>
-        </nav>
+  const [jobs, setJobs] = useState([]);
 
-        <Routes>
-          <Route path="/" element={<JobList />} />
-          <Route path="/job/:jobId" element={<JobDetail />} />
-        </Routes>
-      </BrowserRouter>
-    </JobProvider>
+  async function handleStart() {
+    const { job_id } = await startJob();
+    setJobs(prev => [...prev, job_id]);
+  }
+
+  return (
+    <div style={{ padding: "20px" }}>
+      <h1>SSE Multi - Job Demo</h1>
+
+      <button onClick={handleStart}>Start Job</button>
+
+      {jobs.map(jobId => (
+        <JobStatus key={jobId} jobId={jobId} />
+      ))}
+    </div>
   );
 }
