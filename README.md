@@ -10,7 +10,7 @@ The system supports parallel job execution, automatic reconnection, and graceful
 
 Message Sequence Chart
 
-![Flow](docs/msc_flow.png)
+![Flow](docs/msc_diagram.png)
 
 
 ---
