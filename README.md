@@ -6,7 +6,7 @@ The architecture separates responsibilities across a frontend, a stateless gatew
 Long‑running tasks are executed by BE2, while BE1 streams real‑time progress updates to the frontend.  
 The system supports parallel job execution, automatic reconnection, and graceful degradation when components fail.
 
-![Architecture](architecture.png)
+![Architecture](docs/architecture.png)
 
 ---
 
