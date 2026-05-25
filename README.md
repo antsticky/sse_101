@@ -6,24 +6,7 @@ The architecture separates responsibilities across a frontend, a stateless gatew
 Long‑running tasks are executed by BE2, while BE1 streams real‑time progress updates to the frontend.  
 The system supports parallel job execution, automatic reconnection, and graceful degradation when components fail.
 
-digraph Architecture {
-    rankdir=LR;
-    node [shape=box, style="rounded,filled", color="#333333", fontname="Arial", fontsize=12];
-
-    FE   [label="Frontend (React)\n• Starts jobs\n• Opens SSE streams", fillcolor="#A7C7E7"];
-    BE1  [label="BE1 (Gateway)\n• Stateless API\n• SSE provider\n• Reads Redis state", fillcolor="#F7D794"];
-    BE2  [label="BE2 (Worker)\n• Async job executor\n• Writes job progress", fillcolor="#F5CD79"];
-    Redis [label="Redis\n• Job state store\n• Job queue", fillcolor="#778BEB"];
-
-    FE -> BE1 [label="POST /start"];
-    BE1 -> Redis [label="HSET job state"];
-    BE1 -> Redis [label="LPUSH job_queue"];
-    Redis -> BE2 [label="BRPOP job_queue"];
-    BE2 -> Redis [label="HSET progress"];
-    FE -> BE1 [label="GET /events (SSE)"];
-    BE1 -> FE [label="SSE stream"];
-}
-
+![Architecture](architecture.png)
 
 ---
 
