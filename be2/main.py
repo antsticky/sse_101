@@ -11,17 +11,14 @@ r = redis.Redis(host=REDIS_HOST, port=6379, decode_responses=True)
 
 @app.on_event("startup")
 async def startup():
-    # Resume unfinished jobs BEFORE starting queue consumption
     await resume_incomplete_jobs()
 
-    # Start normal worker loop
     asyncio.create_task(worker_loop())
 
 
 async def resume_incomplete_jobs():
     print("[worker] Checking for incomplete jobs...")
 
-    # Only fetch keys that look like job IDs (UUIDs contain hyphens)
     keys = await r.keys("*-*")
 
     for job_id in keys:
@@ -51,11 +48,9 @@ async def run_job(job_id: str, resume=False):
         ("finished", 100, "Job completed"),
     ]
 
-    # Load current state
     state = await r.hgetall(job_id)
     current_progress = int(state.get("progress", 0))
 
-    # Find where to resume
     start_index = 0
     for i, (_, progress, _) in enumerate(steps):
         if progress > current_progress:
@@ -64,7 +59,6 @@ async def run_job(job_id: str, resume=False):
 
     print(f"[worker] Job {job_id} starting at step index {start_index}")
 
-    # Run remaining steps
     for status, progress, message in steps[start_index:]:
         await r.hset(job_id, mapping={
             "status": status,
